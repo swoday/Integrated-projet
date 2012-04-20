@@ -62,7 +62,7 @@ void QEIInit()
 	IFS4bits.QEI2IF = 0;
 }
 
-void _ISR __attribute__((interrupt, auto_psv)) _QEI1Interrupt(void)
+void _ISR _QEI1Interrupt(void)
 {
 	if(QEI1CONbits.UPDN) //overflow
 	{
@@ -78,7 +78,7 @@ void _ISR __attribute__((interrupt, auto_psv)) _QEI1Interrupt(void)
 	IFS3bits.QEI1IF = 0; //on reset le flag d'interruption
 }
 
-void _ISR __attribute__((interrupt, auto_psv)) _QEI2Interrupt(void)
+void _ISR _QEI2Interrupt(void)
 {
 	if(QEI2CONbits.UPDN)
 	{

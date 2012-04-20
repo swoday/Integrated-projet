@@ -2,16 +2,19 @@
 
 /* variables globales */
 //on ramene l'echelle des vitesses a une echelle lineaire variant de (vMIN) -100 .. 0 (stop) .. 100 (vMAX)
-const int consigneMAX = 100; 
-const int consigneMIN = 0;
+const float consigneMAX = 100.0; 
+const float consigneMIN = 0.0;
 const float vref = 0.14; // vitesse de reference des 2 moteurs 14cm/s (2 revolutions/s) -> 0,14 m s^-1
-const float kP = 8.5;
-const float kI = 2;
+const float kPGauche = 8.5;
+const float kIGauche = 2.0;
+const float kPDroite = 8.5;
+const float kIDroite = 2.0;
 
 extern float positionAbsolueGauche;
 extern float positionAbsolueDroite;
 
 int flag;
+
 float vitesseReelleGauche, vitesseReelleDroite; //vitesse physique reelle (en m/s)
 float pastPosGauche, pastPosDroite;    //position a l'iteration precedente
 float currPosGauche, currPosDroite;    //position courante
@@ -46,7 +49,7 @@ void initRegulation()
 	initTimer1();
 }
 
-float regulateurPI(float pastReg, float currErr, float pastErr)
+float regulateurPI(float pastReg, float currErr, float pastErr, float kP, float kI)
 {
 	float outputReg = pastReg + kP*(currErr - pastErr) + kI*(currErr + pastErr);
 	
@@ -62,7 +65,7 @@ float regulateurPI(float pastReg, float currErr, float pastErr)
 
 void regulationVitesse(int commande)
 {
-	int v1, v2;
+	float v1, v2;
 	
 	switch(commande)
 	{
@@ -70,42 +73,36 @@ void regulationVitesse(int commande)
 		{
 			v1 = 0;
 			v2 = 0;
-			//consigneReguleeGauche = 0; consigneReguleeDroite = 0; //on commence a la moitie de la vitesse
 			break;
 		}
 		case 1: //forward
 		{
 			v1 = vref;
 			v2 = vref;
-			//consigneReguleeGauche = 50; consigneReguleeDroite = 50; //on commence a la moitie de la vitesse
 			break;
 		}
 		case 2: //backward
 		{
 			v1 = -vref;
 			v2 = -vref;
-			//consigneReguleeGauche = -50; consigneReguleeDroite = -50; //on commence a la moitie de la vitesse
 			break;
 		}
 		case 3: //clockwise
 		{
 			v1 = vref;
 			v2 = -vref;
-			//consigneReguleeGauche = 50; consigneReguleeDroite = -50; //on commence a la moitie de la vitesse
 			break;
 		}
 		case 4: //counterclockwise
 		{
 			v1 = -vref;
 			v2 = vref;
-			//consigneReguleeGauche = -50; consigneReguleeDroite = 50; //on commence a la moitie de la vitesse
 			break;
 		}
 		default:
 		{
 			v1 = 0;
 			v2 = 0;
-			//consigneReguleeGauche = 0; consigneReguleeDroite = 0; //on commence a la moitie de la vitesse
 			break;
 		}
 	}
@@ -113,8 +110,8 @@ void regulationVitesse(int commande)
 	currErrGauche = v1 - vitesseReelleGauche;
 	currErrDroite = v2 - vitesseReelleDroite;
 	
-	consigneReguleeGauche = regulateurPI(consigneReguleeGauche, currErrGauche, pastErrGauche);
-	consigneReguleeDroite = regulateurPI(consigneReguleeDroite, currErrDroite, pastErrDroite);
+	consigneReguleeGauche = regulateurPI(consigneReguleeGauche, currErrGauche, pastErrGauche, kPGauche, kIGauche);
+	consigneReguleeDroite = regulateurPI(consigneReguleeDroite, currErrDroite, pastErrDroite, kPDroite, kIDroite);
 	 
 	pastErrGauche = currErrGauche;
 	pastErrDroite = pastErrDroite;
@@ -128,11 +125,11 @@ int conversionVitesse(int moteur, int commande)
 	
 	if(moteur == 1) //moteur gauche
 	{
-		output = consigneReguleeGauche*25+7500;
+		output = (int)(consigneReguleeGauche*25+7500);
 	}
 	else if(moteur == 2) //moteur droit
 	{
-		output = consigneReguleeDroite*(-25)+7500;
+		output = (int)(consigneReguleeDroite*(-25)+7500);
 	}
 	return output;
 }
