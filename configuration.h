@@ -29,7 +29,7 @@ void PllInit(void);
 // Configures the LEDs IO pins as 1) digital 2) outputs (modified by Duy)
 void LedsInit(void);
 
-// Configures and starts timer2 to create a 10ms time base (modified by Duy)
+// Configures and starts timer2 to create a 100ms time base (modified by Duy)
 void Timer2Init(void);
 
 #endif

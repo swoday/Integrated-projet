@@ -43,8 +43,6 @@ void PllInit( void )
 	while (OSCCONbits.COSC != 0b011);
 }
 
-
-
 // Configures the LEDs IO pins as digital outputs (modified by Duy)
 void LedsInit(void)
 {	

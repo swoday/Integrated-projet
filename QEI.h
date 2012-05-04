@@ -7,7 +7,10 @@
 #define QEI_H_
 
 #include "p33Fxxxx.h"
-//#include "configuration.h"
 
+void resetVariables();
+void QEIInit();
+void getAngleAbsolu();
+void getPositionAbsolue();
 
 #endif

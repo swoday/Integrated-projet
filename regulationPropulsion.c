@@ -4,11 +4,11 @@
 //on ramene l'echelle des vitesses a une echelle lineaire variant de (vMIN) -100 .. 0 (stop) .. 100 (vMAX)
 const float consigneMAX = 100.0; 
 const float consigneMIN = 0.0;
-const float vref = 0.14; // vitesse de reference des 2 moteurs 14cm/s (2 revolutions/s) -> 0,14 m s^-1
-const float kPGauche = 8.5;
-const float kIGauche = 2.0;
-const float kPDroite = 8.5;
-const float kIDroite = 2.0;
+const float vref = 0.2; // vitesse de reference des 2 moteurs 14cm/s (2 revolutions/s) -> 0,14 m s^-1
+const float kPGauche = 5.5;
+const float kIGauche = 1.0;
+const float kPDroite = 5.0;
+const float kIDroite = 0.1;
 
 extern float positionAbsolueGauche;
 extern float positionAbsolueDroite;
@@ -23,14 +23,14 @@ float pastErrGauche, pastErrDroite; //erreur precedente
 float currErrGauche, currErrDroite; //erreur courante
 float consigneReguleeGauche, consigneReguleeDroite; //consigne regulee appliquee
 
-void initTimer1() //timer 4 ms
+void initTimer1() //timer 100ms
 {
 	T1CONbits.TON = 0;			// Stop any 16-bit Timer1 operation
 	T1CONbits.TCS = 0;			// internal instruction cycle clock
 	T1CONbits.TGATE = 0;		// Timer1 Gated Time Accumulation off
-	T1CONbits.TCKPS = 1;		// Prescaler 1:8
+	T1CONbits.TCKPS = 3;		// Prescaler 1:256
 	TMR1 = 0;					// Clear Timer
-	PR1 = 20000;			    // Load period value : 4ms = 20 000 * 8 * 25ns (40MIPS)
+	PR1 = 15625;			    // Load period value : 100ms
 	IFS0bits.T1IF = 0;          // On met le flag d'interruption du timer 1 a 0
 	IEC0bits.T1IE = 1;          // On active l'interruption pour le timer 1
 }
@@ -135,7 +135,7 @@ int conversionVitesse(int moteur, int commande)
 }
 
 // a chaque fois que le timer deborde, on prend la position, et on en determine la vitesse, en faisant la difference avec la position precedente
-void _ISR _T1Interrupt(void) //puisqu'on met a jour les vitesses tous les 10 ms via le timer 2, on va faire en sorte d'avoir une estimation de la vitesse reelle avant que le timer 2 ne deborde. pour ce faire, on utilise le timer 1, implemente de telle maniere qu'au moins 2 interruptions ont lieu, permettant le calcul de la vitesse. --> timer 1 de 4ms --> 2*4ms = 8 ms < 10 ms
+void _ISR __attribute__((interrupt, auto_psv)) _T1Interrupt(void) //Timer 2 pour appliquer la commande aux moteurs (10ms), Timer 1 pour la regulation (100ms)
 {
 	if(!flag) //flag = 0
 	{
@@ -152,8 +152,8 @@ void _ISR _T1Interrupt(void) //puisqu'on met a jour les vitesses tous les 10 ms 
 		
 		flag = 0;
 		
-		vitesseReelleGauche = (currPosGauche - pastPosGauche)/4.0; // millimetres, divisé par 4 millisecondes (ecart entre 2 mesures)
-		vitesseReelleDroite = (currPosDroite - pastPosDroite)/4.0; 
+		vitesseReelleGauche = (currPosGauche - pastPosGauche)/100.0; // millimetres, 
+		vitesseReelleDroite = (currPosDroite - pastPosDroite)/100.0; 
 		
 	}
 	

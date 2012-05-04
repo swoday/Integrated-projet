@@ -54,10 +54,6 @@ void initTimerPWM();
 // pour les moteurs gauche (registre 1) et droit (registre 2)
 void initPWM();
 
-// ----- actions a realiser durant l'interruption -----
-// +++++ appelle appliquerConsigne()
-void _ISR _T3Interrupt(void);
-
 // ----- application de la consigne -----
 // ----- utilisee dans l'interruption, utilise commandeMoteurGauche()/commandeMoteurDroit()
 void appliquerConsigne();

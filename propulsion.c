@@ -61,7 +61,7 @@ void initPWM()
 }
 
 // ----- actions a realiser durant l'interruption -----
-void _ISR _T3Interrupt(void)
+void _ISR __attribute__((interrupt, auto_psv)) _T3Interrupt(void)
 {
 	appliquerConsigne(); //met a jour les registres OC1RS et OC2RS
 	IFS0bits.T3IF = 0; //ne pas oublier de remettre le flag d'interruption a 0
